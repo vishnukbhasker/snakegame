@@ -1,0 +1,35 @@
+name: Deploy Snake Game
+
+on:
+  push:
+    branches:
+      - main  # Trigger only on commits to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.bigger@66TS }}" | docker login -u "${{ secrets.vishnukbhasker }}" --password-stdin
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.vishnukbhasker }}/snake-game:latest .
+
+      - name: Push Docker Image
+        run: docker push ${{ secrets.vishnukbhasker }}/snake-game:latest
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.3.80.182.10 }}
+          username: ${{ secrets.ubuntu }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker pull ${{ secrets.vishnukbhasker }}/snake-game:latest
+            docker stop snake-game-container || true
+            docker rm snake-game-container || true
+            docker run -d --name snake-game-container -p 80:80 ${{ secrets.DOCKER_USERNAME }}/snake-game:latest
